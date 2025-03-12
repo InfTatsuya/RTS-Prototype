@@ -6,6 +6,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Pawns/CameraPawn.h"
+#include "Widgets/BuildWidget.h"
 
 void ARTS_PlayerController::BeginPlay()
 {
@@ -32,6 +33,9 @@ void ARTS_PlayerController::BeginPlay()
 
 		check(CameraZoomInputAction);
 		EnhancedInputComponent->BindAction(CameraZoomInputAction, ETriggerEvent::Triggered, this, &ARTS_PlayerController::CameraZoom);
+
+		check(BuildInputAction);
+		EnhancedInputComponent->BindAction(BuildInputAction, ETriggerEvent::Started, this, &ARTS_PlayerController::ToggleBuildWidget);
 	}
 }
 
@@ -66,5 +70,21 @@ void ARTS_PlayerController::CameraZoom(const FInputActionValue& Value)
 		const float FloatValue = Value.Get<float>();
 		float NewTargetArmLength = FMath::Clamp(SpringArmComponent->TargetArmLength + FloatValue * CameraZoomSpeed, 50.f, 1000.f);
 		SpringArmComponent->TargetArmLength = NewTargetArmLength;
+	}
+}
+
+void ARTS_PlayerController::ToggleBuildWidget(const FInputActionValue& Value)
+{
+	if(IsValid(BuildWidget))
+	{
+		BuildWidget->OnRemoveFromParent();
+		BuildWidget = nullptr;
+	}
+	else
+	{
+		if(!IsValid(BuildWidgetClass)) return;
+
+		BuildWidget = CreateWidget<UBuildWidget>(this, BuildWidgetClass);
+		BuildWidget->AddToViewport();
 	}
 }

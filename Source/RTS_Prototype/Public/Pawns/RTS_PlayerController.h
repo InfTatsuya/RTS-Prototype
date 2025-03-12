@@ -6,6 +6,7 @@
 #include "GameFramework/PlayerController.h"
 #include "RTS_PlayerController.generated.h"
 
+class UBuildWidget;
 class ACameraPawn;
 class UInputAction;
 class UInputMappingContext;
@@ -26,6 +27,7 @@ protected:
 	void MoveVertical(const FInputActionValue& Value);
 	void MoveHorizontal(const FInputActionValue& Value);
 	void CameraZoom(const FInputActionValue& Value);
+	void ToggleBuildWidget(const FInputActionValue& Value);
 	
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inputs")
 	TObjectPtr<UInputMappingContext> RTSMappingContext;
@@ -39,11 +41,20 @@ protected:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inputs")
 	TObjectPtr<UInputAction> CameraZoomInputAction;
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Inputs")
+	TObjectPtr<UInputAction> BuildInputAction;
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configure Inputs")
 	float MovementSpeed = 20.f;
 
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Configure Inputs")
 	float CameraZoomSpeed = 50.f;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widgets")
+	TSubclassOf<UBuildWidget> BuildWidgetClass;
+	
+	UPROPERTY()
+	TObjectPtr<UBuildWidget> BuildWidget = nullptr;
 
 private:
 

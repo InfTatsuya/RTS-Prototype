@@ -4,9 +4,24 @@
 #include "Pawns/RTS_PlayerController.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Buildings/SpawnerActor.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Pawns/CameraPawn.h"
 #include "Widgets/BuildWidget.h"
+
+void ARTS_PlayerController::EnterPlacementMode(const FName& BuildingName)
+{
+	if(SpawnerActorClass == nullptr) return;
+
+	CurrentSpawnerActor = GetWorld()->SpawnActorDeferred<ASpawnerActor>(SpawnerActorClass, FTransform::Identity);
+	CurrentSpawnerActor->RequestedBuildingName = BuildingName;
+	CurrentSpawnerActor->FinishSpawning(FTransform::Identity);
+}
+
+void ARTS_PlayerController::ClearBuildWidget()
+{
+	BuildWidget = nullptr;
+}
 
 void ARTS_PlayerController::BeginPlay()
 {
@@ -16,6 +31,8 @@ void ARTS_PlayerController::BeginPlay()
 	{
 		PlayerPawn = Cast<ACameraPawn>(GetPawn());
 	}
+
+	SetShowMouseCursor(true);
 
 	UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(this->GetLocalPlayer());
 	if(Subsystem && RTSMappingContext)
@@ -36,6 +53,9 @@ void ARTS_PlayerController::BeginPlay()
 
 		check(BuildInputAction);
 		EnhancedInputComponent->BindAction(BuildInputAction, ETriggerEvent::Started, this, &ARTS_PlayerController::ToggleBuildWidget);
+
+		check(ClickedAction);
+		EnhancedInputComponent->BindAction(ClickedAction, ETriggerEvent::Started, this, &ARTS_PlayerController::PlaceBuildingAction);
 	}
 }
 
@@ -87,4 +107,14 @@ void ARTS_PlayerController::ToggleBuildWidget(const FInputActionValue& Value)
 		BuildWidget = CreateWidget<UBuildWidget>(this, BuildWidgetClass);
 		BuildWidget->AddToViewport();
 	}
+}
+
+void ARTS_PlayerController::PlaceBuildingAction(const FInputActionValue& Value)
+{
+	if(!IsValid(CurrentSpawnerActor)) return;
+	if(CurrentSpawnerActor->IsOverlapping()) return;
+
+	CurrentSpawnerActor->OnReleasedBuidling();
+	CurrentSpawnerActor->Destroy();
+	CurrentSpawnerActor = nullptr;
 }

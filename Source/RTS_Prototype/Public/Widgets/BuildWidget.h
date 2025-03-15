@@ -34,4 +34,6 @@ protected:
 
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UVerticalBox> Box_Btns;
+
+	void OnBuildingBtnClicked(FName BuildingName);
 };

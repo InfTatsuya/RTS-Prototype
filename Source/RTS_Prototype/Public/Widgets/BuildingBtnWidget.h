@@ -4,7 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Building/BuildingInfo.h"
+#include "Buildings/BuildingInfo.h"
 #include "BuildingBtnWidget.generated.h"
 
 class UTextBlock;
@@ -13,6 +13,9 @@ class UButton;
 /**
  * 
  */
+
+DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingBtnClicked, FName);
+
 UCLASS()
 class RTS_PROTOTYPE_API UBuildingBtnWidget : public UUserWidget
 {
@@ -30,6 +33,9 @@ public:
 	TObjectPtr<UTextBlock> Text_Name;
 
 	void SetBtnData(const F_BuildingInfo& BuildingData);
+	void SetBtnBuildingName(const FName& Name);
+	
+	FOnBuildingBtnClicked OnClicked;
 
 protected:
 	
@@ -38,4 +44,10 @@ protected:
 
 	UPROPERTY()
 	F_BuildingInfo BtnBuildingData = F_BuildingInfo();
+
+	UPROPERTY()
+	FName BuildingName;
+
+	UFUNCTION()
+	void OnBuildingBtnClick();
 };

@@ -3,6 +3,8 @@
 
 #include "Widgets/BuildWidget.h"
 #include "Components/VerticalBox.h"
+#include "Library/CommonLibraryFunction.h"
+#include "Pawns/RTS_PlayerController.h"
 #include "Widgets/BuildingBtnWidget.h"
 
 void UBuildWidget::NativePreConstruct()
@@ -19,8 +21,19 @@ void UBuildWidget::NativePreConstruct()
 			{
 				F_BuildingInfo CurrentItem = *Item;
 				NewBtn->SetBtnData(CurrentItem);
+				NewBtn->SetBtnBuildingName(RowName);
+				NewBtn->OnClicked.AddUObject(this, &ThisClass::OnBuildingBtnClicked);
 				Box_Btns->AddChildToVerticalBox(NewBtn);
 			}
 		}
 	}
+}
+
+void UBuildWidget::OnBuildingBtnClicked(FName BuildingName)
+{
+	ARTS_PlayerController* PlayerController = UCommonLibraryFunction::GetMyController(this);
+	PlayerController->EnterPlacementMode(BuildingName);
+
+	PlayerController->ClearBuildWidget();
+	OnRemoveFromParent();
 }

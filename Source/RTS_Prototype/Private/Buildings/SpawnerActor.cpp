@@ -3,6 +3,7 @@
 
 #include "Buildings/SpawnerActor.h"
 #include "Buildings/BuildingActor.h"
+#include "GameInstance/RTS_GameInstance.h"
 #include "Library/CommonLibraryFunction.h"
 #include "Pawns/RTS_PlayerController.h"
 
@@ -33,6 +34,11 @@ void ASpawnerActor::Tick(float DeltaSeconds)
 
 void ASpawnerActor::OnReleasedBuidling()
 {
+	URTS_GameInstance* GameInstance = UCommonLibraryFunction::GetGameInstance(this);
+	if(!GameInstance) return;
+
+	GameInstance->UpdateResourceByBuilding(RequestedBuildingName);
+	
 	if(OriginalMaterial && CurrentBuilding)
 	{
 		CurrentBuilding->SetBuildingMaterial(OriginalMaterial);

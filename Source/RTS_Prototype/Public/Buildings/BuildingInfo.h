@@ -1,6 +1,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Resources/ResourcesEnum.h"
 #include "BuildingInfo.generated.h"
 
 USTRUCT(BlueprintType)
@@ -18,6 +19,12 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TObjectPtr<UTexture2D> Icon = nullptr;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	EResourceType ResourceType = EResourceType::ERT_MAX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TMap<EResourceType, int32> Cost;
 	
 };
 

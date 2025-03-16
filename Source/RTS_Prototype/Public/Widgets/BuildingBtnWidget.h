@@ -7,6 +7,8 @@
 #include "Buildings/BuildingInfo.h"
 #include "BuildingBtnWidget.generated.h"
 
+class UBuildingCostWidget;
+class UHorizontalBox;
 class UTextBlock;
 class UImage;
 class UButton;
@@ -32,6 +34,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	TObjectPtr<UTextBlock> Text_Name;
 
+	UPROPERTY(meta = (BindWidget))
+	TObjectPtr<UHorizontalBox> Box_Cost;
+
 	void SetBtnData(const F_BuildingInfo& BuildingData);
 	void SetBtnBuildingName(const FName& Name);
 	
@@ -41,6 +46,7 @@ protected:
 	
 	void SetBuildingName(const FText& TextName) const;
 	void SetBuildingIcon(UTexture2D* IconTexture) const;
+	void SetBuildingCost();
 
 	UPROPERTY()
 	F_BuildingInfo BtnBuildingData = F_BuildingInfo();
@@ -50,4 +56,12 @@ protected:
 
 	UFUNCTION()
 	void OnBuildingBtnClick();
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Widget Class Ref")
+	TSubclassOf<UBuildingCostWidget> CostWidgetClass;
+
+private:
+
+	UPROPERTY()
+	bool bHasEnoughResource = true;
 };

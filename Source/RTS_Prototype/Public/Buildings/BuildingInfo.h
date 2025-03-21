@@ -4,6 +4,8 @@
 #include "Resources/ResourcesEnum.h"
 #include "BuildingInfo.generated.h"
 
+class AResourceActor;
+
 USTRUCT(BlueprintType)
 struct F_BuildingInfo : public FTableRowBase
 {
@@ -22,6 +24,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	EResourceType ResourceType = EResourceType::ERT_MAX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	TSubclassOf<AResourceActor> ResourceClass = nullptr;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	TMap<EResourceType, int32> Cost;

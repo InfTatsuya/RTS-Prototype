@@ -3,9 +3,11 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "BuildingInfo.h"
 #include "GameFramework/Actor.h"
 #include "BuildingActor.generated.h"
 
+class AWorkerCharacter;
 class UWidgetComponent;
 DECLARE_MULTICAST_DELEGATE_OneParam(FOnBuildingOverlapped, bool);
 
@@ -48,12 +50,19 @@ protected:
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
 	TObjectPtr<UWidgetComponent> BuildProgressBar;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Component")
+	TObjectPtr<UBoxComponent> HomeLocation;
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Data")
 	FDataTableRowHandle DataTableRowHandle;
+
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "Data")
+	TSubclassOf<AWorkerCharacter> WorkerClass;
 
 	FTimerHandle BuildTimerHandle;
 
 	void UpdateBuildProgressBar();
+	void OnFinishBuild();
 
 	UFUNCTION()
 	void OnBeginOverlapped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
@@ -73,5 +82,15 @@ private:
 
 	UPROPERTY()
 	UBuildingProgressWidget* ProgressWidget = nullptr;
+
+	UPROPERTY()
+	TObjectPtr<AWorkerCharacter> WorkerCharacterRef;
+
+	UPROPERTY()
+	F_BuildingInfo BuildingRowInfo;
+
+public:
+
+	FVector GetSpawnLocation() const;
 
 };

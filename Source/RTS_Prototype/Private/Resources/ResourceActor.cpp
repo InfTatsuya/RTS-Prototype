@@ -28,6 +28,7 @@ AResourceActor::AResourceActor()
 bool AResourceActor::Deplete(int32 DepleteAmount)
 {
 	ResourceAmountLeft -= DepleteAmount;
+	TextRenderComponent->SetText(FText::AsNumber(ResourceAmountLeft));
 	if(ResourceAmountLeft <= 0.f)
 	{
 		Destroy();

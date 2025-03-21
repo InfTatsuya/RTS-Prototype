@@ -6,6 +6,7 @@
 #include "Components/BoxComponent.h"
 #include "Components/WidgetComponent.h"
 #include "Widgets/BuildingProgressWidget.h"
+#include "Workers/WorkerCharacter.h"
 
 ABuildingActor::ABuildingActor()
 {
@@ -25,6 +26,9 @@ ABuildingActor::ABuildingActor()
 
 	BuildProgressBar = CreateDefaultSubobject<UWidgetComponent>(TEXT("BuildProgressBar"));
 	BuildProgressBar->SetupAttachment(Root);
+
+	HomeLocation = CreateDefaultSubobject<UBoxComponent>(TEXT("HomeLocation"));
+	HomeLocation->SetupAttachment(Root);
 }
 
 void ABuildingActor::OnConstruction(const FTransform& Transform)
@@ -41,6 +45,7 @@ void ABuildingActor::OnConstruction(const FTransform& Transform)
 		if(F_BuildingInfo* RowInfo = DataTableRowHandle.DataTable->FindRow<F_BuildingInfo>(DataTableRowHandle.RowName, ""))
 		{
 			StaticMesh->SetStaticMesh(RowInfo->Mesh);
+			BuildingRowInfo = *RowInfo;
 		}
 	}
 
@@ -77,6 +82,20 @@ UMaterialInterface* ABuildingActor::GetBuildingMaterial()
 	return nullptr;
 }
 
+void ABuildingActor::OnFinishBuild()
+{
+	BuildProgressBar->SetHiddenInGame(true);
+	GetWorldTimerManager().ClearTimer(BuildTimerHandle);
+
+	if(WorkerClass)
+	{
+		WorkerCharacterRef = GetWorld()->SpawnActor<AWorkerCharacter>(WorkerClass, HomeLocation->GetComponentLocation(), HomeLocation->GetComponentRotation());
+		WorkerCharacterRef->SetHome(this);
+		WorkerCharacterRef->ResourceClass = BuildingRowInfo.ResourceClass;
+		WorkerCharacterRef->ResourceType = BuildingRowInfo.ResourceType;
+	}
+}
+
 void ABuildingActor::UpdateBuildProgressBar()
 {
 	ConstructionProgressValue += BuildSpeed;
@@ -92,8 +111,7 @@ void ABuildingActor::UpdateBuildProgressBar()
 
 	if(ConstructionProgressValue >= 100)
 	{
-		BuildProgressBar->SetHiddenInGame(true);
-		GetWorldTimerManager().ClearTimer(BuildTimerHandle);
+		OnFinishBuild();
 	}
 }
 
@@ -106,5 +124,10 @@ void ABuildingActor::OnBeginOverlapped(UPrimitiveComponent* OverlappedComponent,
 void ABuildingActor::OnEndOverlapped(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
 	OnBuildingOverlappedDelegate.Broadcast(false);
+}
+
+FVector ABuildingActor::GetSpawnLocation() const
+{
+	return HomeLocation->GetComponentLocation();
 }
 
